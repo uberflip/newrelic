@@ -57,7 +57,7 @@ class Newrelic
         }
 
         if ($handler === null) {
-            $handler = $this->installed ? new DefaultHandler() : new NullHandler();
+            $handler = $this->installed ? new DefaultHandler(function_exists('newrelic_insert_distributed_trace_headers')) : new NullHandler();
         }
 
         $this->handler = $handler;
@@ -375,6 +375,38 @@ class Newrelic
     public function recordCustomEvent($name, array $attributes)
     {
         return $this->call('newrelic_record_custom_event', array($name, $attributes));
+    }
+
+    /**
+     * Insert a newrelic distributed trace headers.
+     * {@link https://docs.newrelic.com/docs/agents/php-agent/features/distributed-tracing-php#manual}
+     * @param array $outbound_headers
+     *
+     * @return bool
+     */
+    public function insertDistributedTraceHeaders(array $outbound_headers)
+    {
+        if ($this->handler->isDistributedTracingEnabled()) {
+            return $this->call('newrelic_insert_distributed_trace_headers', $outbound_headers);
+        }
+
+        return false;
+    }
+
+    /**
+     * Accept distributed trace inbound headers.
+     *
+     * @param array $inbound_headers
+     *
+     * @return bool
+     */
+    public function acceptDistributedTraceHeaders(array $inbound_headers)
+    {
+        if ($this->handler->isDistributedTracingEnabled()) {
+            return $this->call('newrelic_accept_distributed_trace_headers', $inbound_headers);
+        }
+
+        return false;
     }
 
     /**
