@@ -400,6 +400,71 @@ class NewrelicTest extends TestCase
         $this->assertSame($result, $agent->startTransaction($name, $licence));
     }
 
+    public function testInsertDistributedTraceHeaders()
+    {
+        $result = true;
+        $outbound_headers = [];
+
+        $handler = $this->getHandlerSpy(
+            'newrelic_insert_distributed_trace_headers',
+            array(),
+            $result
+        );
+        $handler->expects($this->once())
+            ->method('isDistributedTracingEnabled')
+            ->willReturn(true);
+
+        $agent = new Newrelic(false, $handler);
+
+        $this->assertSame($result, $agent->insertDistributedTraceHeaders($outbound_headers));
+    }
+
+    public function testInsertDistributedTraceHeadersNotEnabled()
+    {
+        $outbound_headers = [];
+        $handler = $this->getHandlerMock();
+        $handler->expects($this->once())
+            ->method('isDistributedTracingEnabled')
+            ->willReturn(false);
+
+        $agent = new Newrelic(false, $handler);
+
+        $this->assertFalse($agent->insertDistributedTraceHeaders($outbound_headers));
+    }
+
+    public function testAcceptDistributedTraceHeaders()
+    {
+        $inbound_headers = [];
+        $result = true;
+
+        $handler = $this->getHandlerSpy(
+            'newrelic_accept_distributed_trace_headers',
+            array(),
+            $result
+        );
+        $handler->expects($this->once())
+            ->method('isDistributedTracingEnabled')
+            ->willReturn(true);
+
+        $agent = new Newrelic(false, $handler);
+
+        $this->assertSame($result, $agent->acceptDistributedTraceHeaders($inbound_headers));
+    }
+
+    public function testAcceptDistributedTraceHeadersNotEnabled()
+    {
+        $inbound_headers = [];
+
+        $handler = $this->getHandlerMock();
+        $handler->expects($this->once())
+            ->method('isDistributedTracingEnabled')
+            ->willReturn(false);
+
+        $agent = new Newrelic(false, $handler);
+
+        $this->assertFalse($agent->AcceptDistributedTraceHeaders($inbound_headers));
+    }
+
     /**
      * @return bool
      */
