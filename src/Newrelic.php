@@ -387,7 +387,7 @@ class Newrelic
     public function insertDistributedTraceHeaders(array $outbound_headers)
     {
         if ($this->handler->isDistributedTracingEnabled()) {
-            return $this->call('newrelic_insert_distributed_trace_headers', $outbound_headers);
+            return $this->call('newrelic_insert_distributed_trace_headers', array($outbound_headers));
         }
 
         return false;
@@ -403,7 +403,7 @@ class Newrelic
     public function acceptDistributedTraceHeaders(array $inbound_headers)
     {
         if ($this->handler->isDistributedTracingEnabled()) {
-            return $this->call('newrelic_accept_distributed_trace_headers', $inbound_headers);
+            return $this->call('newrelic_accept_distributed_trace_headers', array($inbound_headers));
         }
 
         return false;
